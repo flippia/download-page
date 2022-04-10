@@ -1,0 +1,27 @@
+.time-input {
+  background-color: #e3f2fd;
+  margin: 1rem;
+  padding: 1.5rem;
+  border: #ccccff 1px solid;
+  border-radius: 0.5rem;
+  display: flex;
+}
+
+.date-pickers {
+  display: flex;
+  align-items: center;
+  margin: 0 1rem;
+}
+.time-pickers {
+  display: flex;
+  align-items: center;
+  margin: 0 1rem;
+}
+
+.tips-info {
+  margin: 0 1rem;
+}
+.tips-info-time {
+  font-size: 1.2rem;
+  font-weight: 700;
+}

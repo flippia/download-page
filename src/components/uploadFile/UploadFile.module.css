@@ -1,0 +1,15 @@
+.upload-file {
+  margin: 0 0 1rem 1rem;
+  display: flex;
+}
+.upload-button {
+  margin: 0 1rem 0 0;
+  min-width: 250px;
+}
+.upload-files-chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+.upload-files-one-chip {
+  margin: 0 0.2rem 0.3rem 0;
+}

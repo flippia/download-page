@@ -1,0 +1,60 @@
+.download-page {
+}
+
+.optional-input {
+  margin: 1rem;
+  padding: 1.5rem;
+  border: #ccccff 1px solid;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #e3f2fd;
+}
+
+.text-input {
+  display: flex;
+  align-items: center;
+  margin: 0 1rem;
+}
+
+.button-area {
+  margin: 2rem 1rem;
+  display: flex;
+}
+.button-area > div {
+  margin-right: 1rem;
+}
+
+.multiple-select-input {
+  margin: 1rem;
+}
+
+.single-select {
+  margin: 1rem;
+}
+.with-label {
+  width: 150px;
+}
+
+.multi-select {
+  margin: 1rem;
+}
+
+.multi-input {
+  margin: 1rem;
+  display: flex;
+}
+.multi-input-textfield {
+  margin: 0 1rem 0 0;
+  min-width: 230px;
+}
+.multi-input-textfield p {
+  margin: 0.1rem;
+}
+.multi-input-chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+.multi-input-one-chip {
+  margin: 0 0.2rem 0.3rem 0;
+}

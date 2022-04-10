@@ -1,0 +1,15 @@
+.backdrop {
+}
+
+.verify-modal {
+  background-color: #fff8e1;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.verify-submit-button {
+  align-self: center;
+  margin-top: 1.4rem;
+}
