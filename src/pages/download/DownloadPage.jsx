@@ -7,6 +7,8 @@ import moment from "moment";
 import TextField from "@mui/material/TextField";
 import Chip from "@mui/material/Chip";
 import DownloadIcon from "@mui/icons-material/Download";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import Button from "@mui/material/Button";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -22,7 +24,6 @@ import { cityIdList } from "../../data/cityIDList";
 
 import TimeInput from "../../components/timeInput/TimeInput";
 import UploadFile from "../../components/uploadFile/UploadFile";
-import VerifyEmail from "../../components/verifyEmail/VerifyEmail";
 
 /** download reducer actions */
 const DownloadActions = {
@@ -132,7 +133,7 @@ const downloadReducer = (downloadState, action) => {
       /** regex to match the string ends with "@irisradgroup.com" */
       const pattern = /\S+(?=@irisradgroup.com)/gm;
       if (downloadState.inputEmail.match(pattern) !== null) {
-        return { ...downloadState, emailVerified: true, inputEmail: "" };
+        return { ...downloadState, emailVerified: true };
       } else {
         return { ...downloadState, emailVerified: false };
       }
@@ -249,12 +250,13 @@ const DownloadPage = () => {
     });
   };
 
-  // function to update the state of input email address
+  // function to update the state of input email address, and then verify the input email
   const updateEmailInput = (event) => {
     dispatch({
       type: DownloadActions.SETEMAILINPUT,
       payload: event.target.value,
     });
+    dispatch({ type: DownloadActions.VERIFYEMAIL });
   };
   // function to verify the input email
   const verifyInputEmail = () => {
@@ -301,7 +303,8 @@ const DownloadPage = () => {
   const multiInputWithChipsFields = {
     "datapoint id": {
       label: "Datapoint ID",
-      helperText: "Press enter when finishing input one ID",
+      type: "number",
+      helperText: "Press enter when finishing input one ID.",
       inputValue: downloadState.inputDatapointId,
       chipsArray: downloadState.datapointIdList,
       updateInput: updateDatapointInput,
@@ -335,7 +338,9 @@ const DownloadPage = () => {
   };
 
   // the download data info
-  const handleDownload = () => {
+  const handleDownload = (e) => {
+    e.preventDefault();
+
     const downloadContent = {
       start_time: moment.utc(downloadState.start).format("YYYY-MM-DDTHH:mm"),
       end_time: moment
@@ -411,6 +416,7 @@ const DownloadPage = () => {
             <div className={styles["multi-input-textfield"]}>
               <TextField
                 id={field["label"]}
+                // type={field["type"]}
                 label={field["label"]}
                 variant="outlined"
                 helperText={field["helperText"]}
@@ -464,16 +470,40 @@ const DownloadPage = () => {
             </div>
           ))}
         </div>
+
+        <div className={styles["email-to-verify"]}>
+          <div className={styles["email-to-verify-input-textfield"]}>
+            <TextField
+              id="email"
+              label="email"
+              variant="outlined"
+              helperText="Input email to verify. Data downloaded will be sent to this email. "
+              error={!downloadState.emailVerified}
+              type="email"
+              onChange={updateEmailInput}
+              required
+              // onKeyDown={}
+              value={downloadState.inputEmail}
+            />
+          </div>
+          {/* <div className={styles["email-to-verify-button"]}>
+            <Button
+              variant="outlined"
+              startIcon={
+                downloadState.emailVerified ? (
+                  <CheckCircleOutlineIcon />
+                ) : (
+                  <HelpOutlineIcon />
+                )
+              }
+              onClick={verifyInputEmail}
+            >
+              Verify
+            </Button>
+          </div> */}
+        </div>
       </div>
       <div className={styles["button-area"]}>
-        <div>
-          <VerifyEmail
-            verified={downloadState.emailVerified}
-            input={downloadState.inputEmail}
-            updateEmail={updateEmailInput}
-            verifyEmail={verifyInputEmail}
-          />
-        </div>
         <div>
           <Button
             variant="outlined"

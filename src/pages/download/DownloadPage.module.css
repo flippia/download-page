@@ -58,3 +58,15 @@
 .multi-input-one-chip {
   margin: 0 0.2rem 0.3rem 0;
 }
+
+.email-to-verify {
+  margin: 1rem;
+  display: flex;
+  /* align-items: center; */
+}
+.email-to-verify-input-textfield p {
+  margin: 0.1rem;
+}
+.email-to-verify-button {
+  margin: 0.5rem 1rem;
+}
