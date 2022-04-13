@@ -6,7 +6,7 @@ import moment from "moment";
 
 import TextField from "@mui/material/TextField";
 import Chip from "@mui/material/Chip";
-import DownloadIcon from "@mui/icons-material/Download";
+import SendIcon from "@mui/icons-material/Send";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -528,7 +528,7 @@ const DownloadPage = () => {
         <div>
           <Button
             variant="outlined"
-            startIcon={<DownloadIcon />}
+            startIcon={<SendIcon />}
             onClick={handleDownload}
             disabled={!downloadState.emailVerified}
           >
