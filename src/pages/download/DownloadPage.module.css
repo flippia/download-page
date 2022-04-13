@@ -1,14 +1,14 @@
 .download-page {
 }
 
-.optional-input {
+.radio-group-1 {
   margin: 1rem;
   padding: 1.5rem;
   border: #ccccff 1px solid;
   border-radius: 0.5rem;
   display: flex;
   flex-direction: column;
-  background-color: #e3f2fd;
+  background-color: #fffde7;
 }
 
 .text-input {
@@ -31,8 +31,15 @@
 
 .single-select {
   margin: 1rem;
+  padding: 1.5rem;
+  border: #ccccff 1px solid;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  background-color: #fffde7;
 }
 .with-label {
+  margin: 1rem;
   width: 150px;
 }
 
@@ -62,11 +69,22 @@
 
 .email-to-verify {
   margin: 1rem;
+  padding: 1.5rem;
+  border: #ccccff 1px solid;
+  border-radius: 0.5rem;
   display: flex;
-  /* align-items: center; */
+  flex-direction: column;
+  background-color: #fffde7;
+}
+.email-to-verify-input-textfield {
+  margin: 1rem;
 }
 .email-to-verify-input-textfield p {
   margin: 0.1rem;
+}
+.email-to-verify-iput-helper-text {
+  display: flex;
+  flex-direction: column;
 }
 .email-to-verify-button {
   margin: 0.5rem 1rem;

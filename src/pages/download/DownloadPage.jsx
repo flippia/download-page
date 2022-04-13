@@ -1,6 +1,6 @@
 import styles from "./DownloadPage.module.css";
 
-import { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 
 import moment from "moment";
 
@@ -272,6 +272,8 @@ const DownloadPage = () => {
       helperText: "Press enter when finishing input one ID.",
       inputValue: downloadState.inputDatapointId,
       chipsArray: downloadState.datapointIdList,
+      // onInput method to restrict the input value to number only
+      onInput: (e) => (e.target.value = e.target.value.replace(/[^0-9]/g, "")),
       updateInput: (e) =>
         dispatch({
           type: DownloadActions.SETDATAPOINTIDINPUT,
@@ -320,6 +322,22 @@ const DownloadPage = () => {
     },
   };
 
+  // get dynamic helper text for email input field
+  const emailHelperText = () => {
+    return (
+      <span className={styles["email-to-verify-iput-helper-text"]}>
+        <span>
+          Input email to verify. Data downloaded will be sent to this email.
+        </span>
+        {downloadState.inputEmail !== "" && (
+          <span style={{ color: downloadState.emailVerified ? "" : "#c1151f" }}>
+            must have "irisradgroup.com" domain
+          </span>
+        )}
+      </span>
+    );
+  };
+
   // the download data info
   const handleDownload = (e) => {
     e.preventDefault();
@@ -342,6 +360,32 @@ const DownloadPage = () => {
 
   return (
     <div className={styles["download-page"]}>
+      <div className={styles["email-to-verify"]}>
+        <div className={styles["email-to-verify-input-textfield"]}>
+          <TextField
+            id="email"
+            label="email"
+            variant="outlined"
+            helperText={emailHelperText()}
+            // error={
+            //   downloadState.inputEmail === ""
+            //     ? false
+            //     : !downloadState.emailVerified
+            // }
+            type="email"
+            onChange={(e) =>
+              dispatch({
+                type: DownloadActions.SETEMAILANDVERIFY,
+                payload: e.target.value,
+              })
+            }
+            required
+            // onKeyDown={}
+            value={downloadState.inputEmail}
+          />
+        </div>
+      </div>
+
       {Object.values(timeInputFields).map((field, index) => (
         <TimeInput
           key={index}
@@ -353,7 +397,7 @@ const DownloadPage = () => {
           tipsInfo={field["tipsInfo"]}
         />
       ))}
-      <div className={styles["optional-input"]}>
+      <div className={styles["radio-group-1"]}>
         <RadioGroup defaultValue="Cities" name="radio-buttons-group">
           {Object.values(multipleSelectInputFields).map((field) => (
             <div className={styles["multi-select"]} key={field["label"]}>
@@ -428,6 +472,7 @@ const DownloadPage = () => {
                   disabled={downloadState.selectField !== field["label"]}
                   helperText={field["helperText"]}
                   onChange={field["updateInput"]}
+                  onInput={field["onInput"]}
                   onKeyDown={field["handleKeyDown"]}
                   value={field["inputValue"]}
                 />
@@ -456,55 +501,28 @@ const DownloadPage = () => {
             />
           ))}
         </RadioGroup>
-
-        <div className={styles["single-select"]}>
-          {Object.values(singleSelectInputFields).map((field) => (
-            <div className={styles["with-label"]} key={field["label"]}>
-              <FormControl fullWidth>
-                <InputLabel id={field["label"]}>With Label</InputLabel>
-                <Select
-                  labelId={field["label"]}
-                  id={field["label"]}
-                  value={field["value"]}
-                  label={field["label"]}
-                  onChange={field["update"]}
-                >
-                  {Object.keys(field["selection"]).map((option) => (
-                    <MenuItem key={option} value={field["selection"][option]}>
-                      {option}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-          ))}
-        </div>
-
-        <div className={styles["email-to-verify"]}>
-          <div className={styles["email-to-verify-input-textfield"]}>
-            <TextField
-              id="email"
-              label="email"
-              variant="outlined"
-              helperText="Input email to verify. Data downloaded will be sent to this email. "
-              error={
-                downloadState.inputEmail === ""
-                  ? false
-                  : !downloadState.emailVerified
-              }
-              type="email"
-              onChange={(e) =>
-                dispatch({
-                  type: DownloadActions.SETEMAILANDVERIFY,
-                  payload: e.target.value,
-                })
-              }
-              required
-              // onKeyDown={}
-              value={downloadState.inputEmail}
-            />
+      </div>
+      <div className={styles["single-select"]}>
+        {Object.values(singleSelectInputFields).map((field) => (
+          <div className={styles["with-label"]} key={field["label"]}>
+            <FormControl fullWidth>
+              <InputLabel id={field["label"]}>With Label</InputLabel>
+              <Select
+                labelId={field["label"]}
+                id={field["label"]}
+                value={field["value"]}
+                label={field["label"]}
+                onChange={field["update"]}
+              >
+                {Object.keys(field["selection"]).map((option) => (
+                  <MenuItem key={option} value={field["selection"][option]}>
+                    {option}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </div>
-        </div>
+        ))}
       </div>
       <div className={styles["button-area"]}>
         <div>
@@ -514,7 +532,7 @@ const DownloadPage = () => {
             onClick={handleDownload}
             disabled={!downloadState.emailVerified}
           >
-            Download
+            send request
           </Button>
         </div>
       </div>
