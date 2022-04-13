@@ -7,8 +7,9 @@ import moment from "moment";
 import TextField from "@mui/material/TextField";
 import Chip from "@mui/material/Chip";
 import DownloadIcon from "@mui/icons-material/Download";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Button from "@mui/material/Button";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
@@ -31,16 +32,16 @@ const DownloadActions = {
   SETEND: "setEndTime",
   RESETSHHMM: "resetStartHHmm",
   RESETEHHMM: "resetEndHHmm",
-  SETDEVICEID: "setDeviceId",
+  SETSELECTFIELD: "setSelectField",
   SETCITYID: "setCityId",
+  SETDEVICEID: "setDeviceId",
   SETDATAPOINTIDINPUT: "setDatapointIdInput",
   SETDATAPOINTIDLIST: "setDatapointIdList",
   DELETEDATAPOINTCHIP: "deleteDatapointChip",
   SETDATAPOINTIDFILELIST: "setDatapointIdFileList",
   DELETEDATAPOINTIDFILE: "deleteDatapointIdFile",
   SETWITHLABEL: "setWithLabel",
-  SETEMAILINPUT: "setEmailInput",
-  VERIFYEMAIL: "verifyEmail",
+  SETEMAILANDVERIFY: "setEmailAndVerify",
 };
 
 /**
@@ -68,22 +69,52 @@ const downloadReducer = (downloadState, action) => {
     case DownloadActions.RESETEHHMM:
       return {
         ...downloadState,
-        end: new Date(downloadState.end.setHours(0, 0, 0, 0)),
+        end: new Date(new Date().setHours(23, 59, 59, 0)),
+      };
+
+    // update the select field with radio select
+    case DownloadActions.SETSELECTFIELD:
+      switch (action.payload) {
+        case "Cities":
+          return {
+            ...downloadState,
+            selectField: action.payload,
+            deviceID: [],
+            datapointIdList: [],
+            datapointIdFilesList: [],
+          };
+        case "Devices":
+          return {
+            ...downloadState,
+            selectField: action.payload,
+            cityID: [],
+            datapointIdList: [],
+            datapointIdFilesList: [],
+          };
+        case "Datapoint ID":
+          return {
+            ...downloadState,
+            selectField: action.payload,
+            cityID: [],
+            deviceID: [],
+          };
+        default:
+          return { ...downloadState, selectField: action.payload };
+      }
+    // update city id
+    case DownloadActions.SETCITYID:
+      return {
+        ...downloadState,
+        cityID:
+          typeof action.payload === "string"
+            ? action.payload.split(",")
+            : action.payload,
       };
     // update device id
     case DownloadActions.SETDEVICEID:
       return {
         ...downloadState,
         deviceID:
-          typeof action.payload === "string"
-            ? action.payload.split(",")
-            : action.payload,
-      };
-    // update city id
-    case DownloadActions.SETCITYID:
-      return {
-        ...downloadState,
-        cityID:
           typeof action.payload === "string"
             ? action.payload.split(",")
             : action.payload,
@@ -125,17 +156,22 @@ const downloadReducer = (downloadState, action) => {
     // upadte with label
     case DownloadActions.SETWITHLABEL:
       return { ...downloadState, withLabel: action.payload };
-    // update the input email
-    case DownloadActions.SETEMAILINPUT:
-      return { ...downloadState, inputEmail: action.payload };
-    // verify the input email address
-    case DownloadActions.VERIFYEMAIL:
+    // update the input email and verify
+    case DownloadActions.SETEMAILANDVERIFY:
       /** regex to match the string ends with "@irisradgroup.com" */
-      const pattern = /\S+(?=@irisradgroup.com)/gm;
-      if (downloadState.inputEmail.match(pattern) !== null) {
-        return { ...downloadState, emailVerified: true };
+      const emailPattern = /\S+(?=@irisradgroup.com)/g;
+      if (action.payload.match(emailPattern) !== null) {
+        return {
+          ...downloadState,
+          inputEmail: action.payload,
+          emailVerified: true,
+        };
       } else {
-        return { ...downloadState, emailVerified: false };
+        return {
+          ...downloadState,
+          inputEmail: action.payload,
+          emailVerified: false,
+        };
       }
     // return the current state
     default:
@@ -148,8 +184,9 @@ const DownloadPage = () => {
   const initDownloadState = {
     start: new Date(new Date().setHours(0, 0, 0, 0)),
     end: new Date(),
-    deviceID: [],
+    selectField: "Cities",
     cityID: [],
+    deviceID: [],
     inputDatapointId: "",
     datapointIdList: [],
     datapointIdFilesList: [],
@@ -166,48 +203,6 @@ const DownloadPage = () => {
 
   // console.log(time.start);
 
-  /**
-   *
-   * @param {object} input time, to update the start time of the reducer state
-   */
-  const handleStartChange = (input) => {
-    dispatch({ type: DownloadActions.SETSTART, payload: input });
-  };
-  /**
-   *
-   * @param {object} input time, to update the end time of the reducer state
-   */
-  const handleEndChange = (input) => {
-    dispatch({ type: DownloadActions.SETEND, payload: input });
-  };
-
-  /** function to reset start time to default hour, mimute, second and millisecond */
-  const resetStartTime = () => {
-    dispatch({ type: DownloadActions.RESETSHHMM });
-  };
-  /** function to reset end time to default hour, mimute, second and millisecond */
-  const resetEndTime = () => {
-    dispatch({ type: DownloadActions.RESETEHHMM });
-  };
-
-  // function to update the state of device id
-  const upDateDeviceId = (event) => {
-    dispatch({
-      type: DownloadActions.SETDEVICEID,
-      payload: event.target.value,
-    });
-  };
-  // function to update the state of city id
-  const upDateCityId = (event) => {
-    dispatch({ type: DownloadActions.SETCITYID, payload: event.target.value });
-  };
-  // function to update the state of data point id input
-  const updateDatapointInput = (event) => {
-    dispatch({
-      type: DownloadActions.SETDATAPOINTIDINPUT,
-      payload: event.target.value,
-    });
-  };
   // when pressing enter, add the input content to data point id list
   const handleDatapointIdKeyDown = (event) => {
     // when presssing enter
@@ -225,58 +220,23 @@ const DownloadPage = () => {
       }
     }
   };
-  // function to delete chip of data point id
-  const handleDeleteDatapointId = (chip) => {
-    dispatch({ type: DownloadActions.DELETEDATAPOINTCHIP, payload: chip });
-  };
-  // function to delete file from data point id file list
-  const handleDeleteDatapointIdFile = (file) => {
-    dispatch({ type: DownloadActions.DELETEDATAPOINTIDFILE, payload: file });
-  };
-  // function to update datapoint id file list
-  const updateDatapointIdFileList = (file) => {
-    // console.log("use reducer called", file);
-    dispatch({
-      type: DownloadActions.SETDATAPOINTIDFILELIST,
-      payload: file,
-    });
-  };
-
-  // function to update the state of with label
-  const updateWithLabel = (event) => {
-    dispatch({
-      type: DownloadActions.SETWITHLABEL,
-      payload: event.target.value,
-    });
-  };
-
-  // function to update the state of input email address, and then verify the input email
-  const updateEmailInput = (event) => {
-    dispatch({
-      type: DownloadActions.SETEMAILINPUT,
-      payload: event.target.value,
-    });
-    dispatch({ type: DownloadActions.VERIFYEMAIL });
-  };
-  // function to verify the input email
-  const verifyInputEmail = () => {
-    dispatch({ type: DownloadActions.VERIFYEMAIL });
-  };
 
   /** time input fields, including both start and end */
   const timeInputFields = {
     start_from: {
       time: downloadState.start,
-      update: handleStartChange,
-      resetTime: resetStartTime,
+      update: (input) =>
+        dispatch({ type: DownloadActions.SETSTART, payload: input }),
+      resetTime: () => dispatch({ type: DownloadActions.RESETSHHMM }),
       dateLabel: "start date",
       timeLabel: "start time",
       tipsInfo: "The start time selected is",
     },
     end_before: {
       time: downloadState.end,
-      update: handleEndChange,
-      resetTime: resetEndTime,
+      update: (input) =>
+        dispatch({ type: DownloadActions.SETEND, payload: input }),
+      resetTime: () => dispatch({ type: DownloadActions.RESETEHHMM }),
       dateLabel: "end date",
       timeLabel: "end time",
       tipsInfo: "The end time selected is",
@@ -285,17 +245,22 @@ const DownloadPage = () => {
 
   /** input fields accepting multiple select input */
   const multipleSelectInputFields = {
-    "device id": {
-      label: "Devices",
-      value: downloadState.deviceID,
-      update: upDateDeviceId,
-      options: deviceIdList,
-    },
     "city id": {
       label: "Cities",
       value: downloadState.cityID,
-      update: upDateCityId,
+      update: (e) =>
+        dispatch({ type: DownloadActions.SETCITYID, payload: e.target.value }),
       options: cityIdList,
+    },
+    "device id": {
+      label: "Devices",
+      value: downloadState.deviceID,
+      update: (e) =>
+        dispatch({
+          type: DownloadActions.SETDEVICEID,
+          payload: e.target.value,
+        }),
+      options: deviceIdList,
     },
   };
 
@@ -307,19 +272,33 @@ const DownloadPage = () => {
       helperText: "Press enter when finishing input one ID.",
       inputValue: downloadState.inputDatapointId,
       chipsArray: downloadState.datapointIdList,
-      updateInput: updateDatapointInput,
+      updateInput: (e) =>
+        dispatch({
+          type: DownloadActions.SETDATAPOINTIDINPUT,
+          payload: e.target.value,
+        }),
       handleKeyDown: handleDatapointIdKeyDown,
-      handleDeleteChip: handleDeleteDatapointId,
+      handleDeleteChip: (chip) =>
+        dispatch({ type: DownloadActions.DELETEDATAPOINTCHIP, payload: chip }),
     },
   };
 
   /** upload field, including upload button and upload files chips */
   const uploadFileFields = {
     "datapoint id": {
+      label: "Datapoint ID",
       buttonContent: "upload datapoint id file",
       FilesList: downloadState.datapointIdFilesList,
-      updateFileList: updateDatapointIdFileList,
-      deleteFile: handleDeleteDatapointIdFile,
+      updateFileList: (file) =>
+        dispatch({
+          type: DownloadActions.SETDATAPOINTIDFILELIST,
+          payload: file,
+        }),
+      deleteFile: (file) =>
+        dispatch({
+          type: DownloadActions.DELETEDATAPOINTIDFILE,
+          payload: file,
+        }),
     },
   };
 
@@ -328,7 +307,11 @@ const DownloadPage = () => {
     "with label": {
       label: "With Label",
       value: downloadState.withLabel,
-      update: updateWithLabel,
+      update: (e) =>
+        dispatch({
+          type: DownloadActions.SETWITHLABEL,
+          payload: e.target.value,
+        }),
       selection: {
         Yes: true,
         No: false,
@@ -345,7 +328,7 @@ const DownloadPage = () => {
       start_time: moment.utc(downloadState.start).format("YYYY-MM-DDTHH:mm"),
       end_time: moment
         .utc(downloadState.end)
-        .subtract(1, "milliseconds") // subtract 1 milli second
+        // .subtract(1, "milliseconds") // subtract 1 milli second
         .format("YYYY-MM-DDTHH:mm"),
       device_id: downloadState.deviceID,
       city_id: downloadState.cityID,
@@ -371,82 +354,108 @@ const DownloadPage = () => {
         />
       ))}
       <div className={styles["optional-input"]}>
-        {Object.values(multipleSelectInputFields).map((field) => (
-          <div className={styles["multi-select"]} key={field["label"]}>
-            <FormControl sx={{ width: "100%" }}>
-              <InputLabel id={field["label"]}>{field["label"]}</InputLabel>
-              <Select
-                labelId={field["label"]}
-                id={field["label"]}
-                multiple
-                value={field["value"]}
-                onChange={field["update"]}
-                input={<OutlinedInput label={field["label"]} />}
-                renderValue={(selected) => (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                    {selected.map((value) => (
-                      <Chip key={value} label={value} />
-                    ))}
-                  </Box>
-                )}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: "14rem",
-                      // width: 250,
-                    },
-                  },
-                }}
-              >
-                {field.options.map((option) => (
-                  <MenuItem key={option["title"]} value={option["title"]}>
-                    <Checkbox
-                      checked={field.value.indexOf(option["title"]) > -1}
-                    />
-                    <ListItemText primary={option["title"]} />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
-        ))}
-
-        {Object.values(multiInputWithChipsFields).map((field) => (
-          <div className={styles["multi-input"]} key={field["label"]}>
-            <div className={styles["multi-input-textfield"]}>
-              <TextField
-                id={field["label"]}
-                // type={field["type"]}
-                label={field["label"]}
-                variant="outlined"
-                helperText={field["helperText"]}
-                onChange={field["updateInput"]}
-                onKeyDown={field["handleKeyDown"]}
-                value={field["inputValue"]}
+        <RadioGroup defaultValue="Cities" name="radio-buttons-group">
+          {Object.values(multipleSelectInputFields).map((field) => (
+            <div className={styles["multi-select"]} key={field["label"]}>
+              <FormControlLabel
+                value={field["label"]}
+                control={<Radio />}
+                onChange={(e) =>
+                  dispatch({
+                    type: DownloadActions.SETSELECTFIELD,
+                    payload: e.target.value,
+                  })
+                }
+                // sx={{ margin: 0 }}
               />
+              <FormControl sx={{ width: "100%" }}>
+                <InputLabel id={field["label"]}>{field["label"]}</InputLabel>
+                <Select
+                  labelId={field["label"]}
+                  id={field["label"]}
+                  disabled={downloadState.selectField !== field["label"]}
+                  multiple
+                  value={field["value"]}
+                  onChange={field["update"]}
+                  input={<OutlinedInput label={field["label"]} />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} />
+                      ))}
+                    </Box>
+                  )}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: "14rem",
+                        // width: 250,
+                      },
+                    },
+                  }}
+                >
+                  {field.options.map((option) => (
+                    <MenuItem key={option["title"]} value={option["title"]}>
+                      <Checkbox
+                        checked={field.value.indexOf(option["title"]) > -1}
+                      />
+                      <ListItemText primary={option["title"]} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </div>
-            <div className={styles["multi-input-chips"]}>
-              {field["chipsArray"].map((chip, index) => (
-                <div className={styles["multi-input-one-chip"]} key={index}>
-                  <Chip
-                    label={chip}
-                    onDelete={() => field["handleDeleteChip"](chip)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+          ))}
 
-        {Object.values(uploadFileFields).map((field, index) => (
-          <UploadFile
-            key={index}
-            buttonContent={field["buttonContent"]}
-            FilesList={field["FilesList"]}
-            updateFileList={field["updateFileList"]}
-            deleteFile={field["deleteFile"]}
-          />
-        ))}
+          {Object.values(multiInputWithChipsFields).map((field) => (
+            <div className={styles["multi-input"]} key={field["label"]}>
+              <FormControlLabel
+                value={field["label"]}
+                control={<Radio />}
+                onChange={(e) =>
+                  dispatch({
+                    type: DownloadActions.SETSELECTFIELD,
+                    payload: e.target.value,
+                  })
+                }
+              />
+              <div className={styles["multi-input-textfield"]}>
+                <TextField
+                  id={field["label"]}
+                  // type={field["type"]}
+                  label={field["label"]}
+                  variant="outlined"
+                  disabled={downloadState.selectField !== field["label"]}
+                  helperText={field["helperText"]}
+                  onChange={field["updateInput"]}
+                  onKeyDown={field["handleKeyDown"]}
+                  value={field["inputValue"]}
+                />
+              </div>
+              <div className={styles["multi-input-chips"]}>
+                {field["chipsArray"].map((chip, index) => (
+                  <div className={styles["multi-input-one-chip"]} key={index}>
+                    <Chip
+                      label={chip}
+                      onDelete={() => field["handleDeleteChip"](chip)}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {Object.values(uploadFileFields).map((field, index) => (
+            <UploadFile
+              key={index}
+              isDisabled={downloadState.selectField !== field["label"]}
+              buttonContent={field["buttonContent"]}
+              FilesList={field["FilesList"]}
+              updateFileList={field["updateFileList"]}
+              deleteFile={field["deleteFile"]}
+            />
+          ))}
+        </RadioGroup>
 
         <div className={styles["single-select"]}>
           {Object.values(singleSelectInputFields).map((field) => (
@@ -478,29 +487,23 @@ const DownloadPage = () => {
               label="email"
               variant="outlined"
               helperText="Input email to verify. Data downloaded will be sent to this email. "
-              error={!downloadState.emailVerified}
+              error={
+                downloadState.inputEmail === ""
+                  ? false
+                  : !downloadState.emailVerified
+              }
               type="email"
-              onChange={updateEmailInput}
+              onChange={(e) =>
+                dispatch({
+                  type: DownloadActions.SETEMAILANDVERIFY,
+                  payload: e.target.value,
+                })
+              }
               required
               // onKeyDown={}
               value={downloadState.inputEmail}
             />
           </div>
-          {/* <div className={styles["email-to-verify-button"]}>
-            <Button
-              variant="outlined"
-              startIcon={
-                downloadState.emailVerified ? (
-                  <CheckCircleOutlineIcon />
-                ) : (
-                  <HelpOutlineIcon />
-                )
-              }
-              onClick={verifyInputEmail}
-            >
-              Verify
-            </Button>
-          </div> */}
         </div>
       </div>
       <div className={styles["button-area"]}>

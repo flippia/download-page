@@ -7,8 +7,8 @@ import moment from "moment";
 import TextField from "@mui/material/TextField";
 import AdapterDateFns from "@mui/lab/AdapterDateFns";
 import LocalizationProvider from "@mui/lab/LocalizationProvider";
-import DatePicker from "@mui/lab/DatePicker";
-import DesktopTimePicker from "@mui/lab/DesktopTimePicker";
+import MobileDatePicker from "@mui/lab/MobileDatePicker";
+import MobileTimePicker from "@mui/lab/MobileTimePicker";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import IconButton from "@mui/material/IconButton";
 import Tooltip from "@mui/material/Tooltip";
@@ -21,17 +21,15 @@ const TimeInput = (props) => {
     <div className={styles["time-input"]}>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <div className={styles["date-pickers"]}>
-          <DatePicker
+          <MobileDatePicker
             label={dateLabel}
-            showTodayButton
-            // showToolbar
             value={time}
             onChange={handleChange}
             renderInput={(params) => <TextField {...params} />}
           />
         </div>
         <div className={styles["time-pickers"]}>
-          <DesktopTimePicker
+          <MobileTimePicker
             label={timeLabel}
             showToolbar
             value={time}

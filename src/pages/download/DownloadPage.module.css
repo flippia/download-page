@@ -38,6 +38,7 @@
 
 .multi-select {
   margin: 1rem;
+  display: flex;
 }
 
 .multi-input {

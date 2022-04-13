@@ -12,7 +12,8 @@ const FileInput = styled("input")({
 });
 
 const UploadFile = (props) => {
-  const { buttonContent, FilesList, updateFileList, deleteFile } = props;
+  const { buttonContent, FilesList, updateFileList, deleteFile, isDisabled } =
+    props;
 
   const handleFileChange = (e) => {
     if (e.target.files[0]) {
@@ -38,12 +39,14 @@ const UploadFile = (props) => {
           <FileInput
             accept="application/JSON"
             id="upload-datapointId-json-file"
+            disabled={isDisabled}
             type="file"
             onChange={handleFileChange}
           />
           <Button
             variant="outlined"
             component="span"
+            disabled={isDisabled}
             startIcon={<FileUploadIcon />}
           >
             {buttonContent}
